@@ -36,53 +36,62 @@ const createHTMLTemplate = (data) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Contact Form Submission</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background: #fff;
-                color: #222;
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 24px 0 0 0;
-            }
-            .field-label {
-                font-size: 15px;
-                font-weight: bold;
-                text-transform: lowercase;
-                margin-top: 18px;
-                margin-bottom: 2px;
-            }
-            .field-value {
-                font-size: 16px;
-                color: #333;
-                line-height: 1.5;
-            }
-            .suggestions-section {
-                background-color: #fafafa;
-                border: 1px solid #e0e0e0;
-                padding: 20px;
-                margin-top: 24px;
-                border-radius: 4px;
-            }
-            .footer {
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 1px solid #e0e0e0;
-                text-align: center;
-                color: #999;
-                font-size: 12px;
-            }
-            .timestamp {
-                color: #999;
-                font-size: 12px;
-                margin-top: 16px;
-                text-align: center;
-            }
-        </style>
+       <style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .header h1 {
+        margin: 0 0 20px 0;
+        font-size: 24px;
+        color: #333;
+    }
+    .field-group {
+        margin-bottom: 15px;
+    }
+    .field-label {
+        display: block;
+        margin-bottom: 3px;
+        font-weight: bold;
+        color: #555;
+    }
+    .field-value {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.4;
+        padding: 5px 0;
+    }
+    .suggestions-section {
+        background-color: #f8f8f8;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 3px;
+    }
+    .footer {
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+        color: #666;
+        font-size: 11px;
+    }
+    .timestamp {
+        color: #666;
+        font-size: 11px;
+        margin-top: 15px;
+    }
+    .separator {
+        border-top: 1px solid #ddd;
+        margin: 20px 0;
+    }
+</style>
     </head>
     <body>
         <div class="email-container">
@@ -90,45 +99,58 @@ const createHTMLTemplate = (data) => {
                 <h1>Contact Form Submission</h1>
             </div>
             
-            <div class="content">
-                <div class="field-group">
-                    <div class="field-label">Name</div>
-                    <div class="field-value">${data.name}</div>
-                </div>
-                
-                <div class="field-group">
-                    <div class="field-label">Organization</div>
-                    <div class="field-value">${data.organization}</div>
-                </div>
-                
-                <div class="field-group">
-                    <div class="field-label">Phone</div>
-                    <div class="field-value">${data.phone}</div>
-                </div>
-                
-                <div class="field-group">
-                    <div class="field-label">Email</div>
-                    <div class="field-value">${data.email}</div>
-                </div>
-                
-                <div class="field-group">
-                    <div class="field-label">Subject</div>
-                    <div class="field-value">${data.subject}</div>
-                </div>
-                
-                <div class="suggestions-section">
-                    <div class="field-label">Additional Suggestions</div>
-                    <div class="field-value">${data.additional}</div>
-                </div>
-                
-                <div class="timestamp">
-                    Submitted on ${new Date().toLocaleDateString()}
-                </div>
-            </div>
-            
-            <div class="footer">
-                <p>This email was sent from your contact form</p>
-            </div>
+           <div class="separator"></div>
+    <div class="content">
+        <div class="field-group">
+            <div class="field-label">Name</div>
+            <div class="field-value">${data.name}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="field-group">
+            <div class="field-label">Organization</div>
+            <div class="field-value">${data.organization}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="field-group">
+            <div class="field-label">Phone</div>
+            <div class="field-value">${data.phone}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="field-group">
+            <div class="field-label">Email</div>
+            <div class="field-value">${data.email}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="field-group">
+            <div class="field-label">Subject</div>
+            <div class="field-value">${data.subject}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="field-group">
+            <div class="field-label">Additional</div>
+            <div class="field-value">${data.additional}</div>
+        </div>
+        
+        <div class="separator"></div>
+        
+        <div class="suggestions-section">
+            <div class="field-label">Suggestions</div>
+            <div class="field-value">${data.suggestion}</div>
+        </div>
+        
+        <div class="timestamp">
+            Submitted on ${new Date().toLocaleDateString()}
+        
         </div>
     </body>
     </html>
