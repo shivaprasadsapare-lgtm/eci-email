@@ -1,15 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { Resend } = require('resend');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Middleware
-//cors to all
-
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -18,16 +17,6 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static('public'));
-
-// Replace with your Gmail credentials and target email
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-       
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
 
 // HTML Email Template
 const createHTMLTemplate = (data) => {
@@ -100,56 +89,56 @@ const createHTMLTemplate = (data) => {
             <div class="header">
                 <h1>Contact Form Submission</h1>
             </div>
-            
+
            <div class="separator"></div>
     <div class="content">
         <div class="field-group">
             <div class="field-label">Name</div>
             <div class="field-value">${data.name}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Organization</div>
             <div class="field-value">${data.organization}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Phone</div>
             <div class="field-value">${data.phone}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Email</div>
             <div class="field-value">${data.email}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Subject</div>
             <div class="field-value">${data.subject}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Additional</div>
             <div class="field-value">${data.additional}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="suggestions-section">
             <div class="field-label">Suggestions</div>
             <div class="field-value">${data.suggestion}</div>
         </div>
-        
+
         <div class="timestamp">
          Submitted on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
         </div>
@@ -227,43 +216,43 @@ const createHTMLEventTemplate = (data) => {
             <div class="header">
                 <h1>Event Form Submission</h1>
             </div>
-            
+
            <div class="separator"></div>
     <div class="content">
         <div class="field-group">
             <div class="field-label">Name of organisation</div>
             <div class="field-value">${data.organization}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Name of person participating</div>
             <div class="field-value">${data.person}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
+
         <div class="field-group">
             <div class="field-label">Event name</div>
             <div class="field-value">${data.name}</div>
         </div>
-        
+
         <div class="separator"></div>
           <div class="field-group">
             <div class="field-label">Designation of person participating</div>
             <div class="field-value">${data.qualification}</div>
         </div>
-        
+
         <div class="separator"></div>
           <div class="field-group">
             <div class="field-label">Phone number</div>
             <div class="field-value">${data.phone}</div>
         </div>
-        
+
         <div class="separator"></div>
-        
-        
+
+
         <div class="field-group">
             <div class="field-label">Email</div>
             <div class="field-value">${data.email}</div>
@@ -275,58 +264,18 @@ const createHTMLEventTemplate = (data) => {
     </html>
     `;
 };
-// Plain Text Template
-const createTextTemplate = (data) => {
-    return `
-CONTACT FORM SUBMISSION
-=======================
 
-📋 SUBMISSION DETAILS:
-Name: ${data.name}
-Organization: ${data.organization}
-Phone: ${data.phone}
-Email: ${data.email}
-Subject: ${data.subject}
+app.post('/send', async (req, res) => {
+    const { name, organization, phone, email, subject, additional, suggestion } = req.body;
 
-💡 ADDITIONAL SUGGESTIONS:
-${data.additional}
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'Contact Form <onboarding@resend.dev>',
+            to: ['nominations@eci.co.in'],
+            subject: `New submission from https://eci.co.in/`,
+            html: createHTMLTemplate({ name, organization, phone, email, subject, additional, suggestion })
+        });
 
----
-📅 Submitted: ${new Date().toLocaleString()}
-📧 Sent from: Contact Form System
-    `;
-};
-const createTextEventTemplate = (data) => {
-    return `
-CONTACT FORM SUBMISSION
-=======================
-
-📋 SUBMISSION DETAILS:
-Organization: ${data.organization}
-Person: ${data.person}
-Event:${data.name}
-Phone: ${data.phone}
-Email: ${data.email}
-
-
-
----
-📅 Submitted: ${new Date().toLocaleString()}
-📧 Sent from: Event Form System
-    `;
-};
-app.post('/send', (req, res) => {
-    const { name, organization, phone, email, subject, additional,suggestion } = req.body;
-
-    const mailOptions = {
-        from: `"Contact Form" <${email}>`,
-        to: 'nominations@eci.co.in',
-        subject: `New submission from https://eci.co.in/`,
-        text: createTextTemplate({ name, organization, phone, email, subject, additional }),
-        html: createHTMLTemplate({ name, organization, phone, email, subject, additional, suggestion })
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.error('Email Error:', error);
             return res.status(500).json({
@@ -334,26 +283,32 @@ app.post('/send', (req, res) => {
                 message: 'Error sending email. Please try again.'
             });
         }
-        
-        console.log('Email sent successfully:', info.messageId);
+
+        console.log('Email sent successfully:', data.id);
         res.json({
             success: true,
             message: 'Email sent successfully! We will get back to you soon.'
         });
-    });
+    } catch (error) {
+        console.error('Email Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error sending email. Please try again.'
+        });
+    }
 });
-app.post('/event',(req,res)=>{
-    const { organization, person, name,qualification , phone, email } = req.body;
 
-    const mailOptions = {
-        from: `"Event registration Form" <${email}>`,
-        to: 'nominations@eci.co.in',
-        subject: `New submission from https://eci.co.in/`,
-        text: createTextEventTemplate({ organization,person, name,qualification, phone, email }),
-        html: createHTMLEventTemplate({ organization,person, name,qualification, phone, email })
-    };
+app.post('/event', async (req, res) => {
+    const { organization, person, name, qualification, phone, email } = req.body;
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'Event Registration <onboarding@resend.dev>',
+            to: ['nominations@eci.co.in'],
+            subject: `New submission from https://eci.co.in/`,
+            html: createHTMLEventTemplate({ organization, person, name, qualification, phone, email })
+        });
+
         if (error) {
             console.error('Email Error:', error);
             return res.status(500).json({
@@ -361,15 +316,21 @@ app.post('/event',(req,res)=>{
                 message: 'Error sending email. Please try again.'
             });
         }
-        
-        console.log('Email sent successfully:', info.messageId);
+
+        console.log('Email sent successfully:', data.id);
         res.json({
             success: true,
             message: 'Email sent successfully! We will get back to you soon.'
         });
-    });
-})
+    } catch (error) {
+        console.error('Email Error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error sending email. Please try again.'
+        });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-}); 
+});
