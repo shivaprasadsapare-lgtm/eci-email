@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
@@ -23,8 +24,8 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
        
-        user: 'eci.responses@gmail.com', // Your Gmail address
-        pass: 'ryqp qepq gete jgoo'      // App password (not your Gmail password)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -315,14 +316,14 @@ Email: ${data.email}
     `;
 };
 app.post('/send', (req, res) => {
-    const { name, organization, phone, email, subject, additional } = req.body;
+    const { name, organization, phone, email, subject, additional,suggestion } = req.body;
 
     const mailOptions = {
         from: `"Contact Form" <${email}>`,
         to: 'nominations@eci.co.in',
         subject: `New submission from https://eci.co.in/`,
         text: createTextTemplate({ name, organization, phone, email, subject, additional }),
-        html: createHTMLTemplate({ name, organization, phone, email, subject, additional })
+        html: createHTMLTemplate({ name, organization, phone, email, subject, additional, suggestion })
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
